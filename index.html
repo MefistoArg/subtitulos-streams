@@ -2,147 +2,232 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Subtítulos Stream PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subtítulos Stream PRO - Versión Extendida</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Estilos originales que te gustan */
-        body { 
-            background-color: black; 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --bg-panel: #1a1a1a;
+            --bg-input: #2a2a2a;
+            --color-naranja: #ff5733;
+            --color-celeste: #00bfff;
+            --border-color: #333333;
         }
 
-        #box {
+        body {
+            background-color: black;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #controles {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            width: 380px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        h2 {
+            margin: 0 0 20px 0;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .config-section {
+            margin-bottom: 20px;
+        }
+
+        select {
+            width: 100%;
+            height: 45px;
+            background-color: var(--bg-input);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #ececec;
+            padding: 0 15px;
+            font-size: 16px;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .botones-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            height: 55px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        .btn-action:active { transform: scale(0.97); }
+
+        #btnVoz { background-color: #444; }
+        #btnVoz.active { background-color: var(--color-naranja); box-shadow: 0 0 20px rgba(255, 87, 51, 0.4); }
+
+        #btnArco { background-color: var(--color-celeste); }
+        #btnArco.active { border: 3px solid white; box-shadow: 0 0 20px rgba(0, 191, 255, 0.4); }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            height: 50px;
+            background-color: var(--bg-input);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: white;
+            padding: 0 15px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        input::placeholder { color: #666; }
+
+        .footer-info {
+            font-size: 14px;
+            color: #777;
+            margin: 0;
+        }
+
+        /* Area de visualización */
+        #display-area {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
             height: 100vh;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            padding-bottom: 50px;
-            box-sizing: border-box;
+            padding-bottom: 100px;
+            pointer-events: none;
         }
 
-        #texto {
+        #texto-subtitulo {
             color: white;
-            font-size: 48px;
-            font-weight: 800;
+            font-size: 60px;
+            font-weight: 900;
             text-align: center;
-            text-shadow: 4px 4px 8px rgba(0,0,0,0.8);
-            max-width: 90%;
-            line-height: 1.2;
+            max-width: 85%;
+            text-shadow: 0 0 15px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1);
+            line-height: 1.3;
         }
 
-        /* Tu efecto arcoíris original */
-        .arcoiris {
-            background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+        .efecto-arcoiris {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 400% 400%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-size: 400% 400%;
-            animation: gradiente 5s ease infinite;
+            animation: flow 6s ease infinite;
         }
 
-        @keyframes gradiente {
+        @keyframes flow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
-        }
-
-        /* Panel de controles completo */
-        #controles {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(25, 25, 25, 0.9);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            color: white;
-            z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .btn {
-            padding: 10px 15px;
-            margin: 5px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-voz { background: #444; color: white; }
-        .btn-voz.active { background: #ff4b2b; }
-        .btn-arco { background: #444; color: white; }
-        .btn-arco.active { background: #00c6ff; }
-        
-        input, select {
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 10px;
-            width: 100%;
         }
     </style>
 </head>
 <body>
 
     <div id="controles">
-        <h3 style="margin: 0 0 15px 0;">Configuración</h3>
-        <select id="micSelect"></select>
+        <h2>Configuración</h2>
         
-        <div style="display: flex; gap: 5px; margin-top: 10px;">
-            <button id="btnVoz" class="btn btn-voz"><i class="fas fa-microphone"></i> VOZ</button>
-            <button id="btnArco" class="btn btn-arco"><i class="fas fa-rainbow"></i> ARCOÍRIS</button>
+        <div class="config-section">
+            <select id="micSelect">
+                <option value="">Cargando dispositivos...</option>
+            </select>
         </div>
 
-        <input type="text" id="censura" placeholder="palabra:reemplazo (ej: boludo:***)">
-        
-        <p style="font-size: 12px; color: #aaa; margin-top: 15px;">
-            Teclado <b>]</b> para ocultar controles.
-        </p>
+        <div class="botones-grid">
+            <button id="btnVoz" class="btn-action">
+                <i class="fas fa-microphone"></i> VOZ
+            </button>
+            <button id="btnArco" class="btn-action">
+                <i class="fas fa-rainbow"></i> ARCOÍRIS
+            </button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="censuraInput" placeholder="palabra:reemplazo (ej: boludo:***)">
+        </div>
+
+        <p class="footer-info">Teclado <b>]</b> para ocultar este panel.</p>
     </div>
 
-    <div id="box">
-        <span id="texto"></span>
+    <div id="display-area">
+        <span id="texto-subtitulo"></span>
     </div>
 
     <script>
-        const texto = document.getElementById('texto');
+        // Referencias del DOM
+        const display = document.getElementById('texto-subtitulo');
         const btnVoz = document.getElementById('btnVoz');
         const btnArco = document.getElementById('btnArco');
         const micSelect = document.getElementById('micSelect');
-        const inputCensura = document.getElementById('censura');
+        const inputCensura = document.getElementById('censuraInput');
         
         let recognition;
-        let isListening = false;
-        let timerBorrado;
-        const TIEMPO_BORRADO = 10000; // 10 segundos
+        let isActive = false;
+        let timerActividad;
+        const TIEMPO_MAXIMO = 10000; // 10 Segundos
 
-        // Cargar micrófonos
-        async function getDevices() {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            micSelect.innerHTML = devices
-                .filter(d => d.kind === 'audioinput')
-                .map(d => `<option value="${d.deviceId}">${d.label || 'Micro'}</option>`)
-                .join('');
-        }
-        navigator.mediaDevices.getUserMedia({audio: true}).then(getDevices);
-
-        // Función de borrado automático
-        function resetTimer() {
-            clearTimeout(timerBorrado);
-            timerBorrado = setTimeout(() => {
-                texto.innerText = "";
-            }, TIEMPO_BORRADO);
+        // Función para limpiar pantalla por inactividad
+        function gestionarTiempoPresencia() {
+            clearTimeout(timerActividad);
+            timerActividad = setTimeout(() => {
+                display.innerText = "";
+            }, TIEMPO_MAXIMO);
         }
 
+        // Inicializar dispositivos de audio
+        async function getAudioSources() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                micSelect.innerHTML = "";
+                
+                devices.forEach(device => {
+                    if (device.kind === 'audioinput') {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.text = device.label || `Micrófono ${micSelect.length + 1}`;
+                        micSelect.appendChild(option);
+                    }
+                });
+            } catch (err) {
+                console.error("Error accediendo al micro:", err);
+            }
+        }
+
+        // Reconocimiento de Voz
         if ('webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
             recognition.continuous = true;
@@ -150,40 +235,56 @@
             recognition.lang = 'es-AR';
 
             recognition.onresult = (event) => {
-                let current = "";
+                let textAccumulator = "";
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    current += event.results[i][0].transcript;
+                    textAccumulator += event.results[i][0].transcript;
                 }
                 
-                // Aplicar censura
-                let filtrado = current;
-                const reglas = inputCensura.value.split(',');
-                reglas.forEach(r => {
-                    const [malo, bueno] = r.split(':');
-                    if(malo && bueno) filtrado = filtrado.replace(new RegExp(malo.trim(), 'gi'), bueno.trim());
+                // Lógica de Censura
+                let filteredText = textAccumulator;
+                const rules = inputCensura.value.split(',');
+                rules.forEach(rule => {
+                    const [target, replacement] = rule.split(':');
+                    if (target && replacement) {
+                        const regex = new RegExp(target.trim(), 'gi');
+                        filteredText = filteredText.replace(regex, replacement.trim());
+                    }
                 });
 
-                texto.innerText = filtrado;
-                resetTimer();
+                display.innerText = filteredText;
+                gestionarTiempoPresencia(); // Iniciar cuenta regresiva
             };
 
-            recognition.onend = () => { if(isListening) recognition.start(); };
+            recognition.onend = () => { if (isActive) recognition.start(); };
         }
 
+        // Eventos de botones
         btnVoz.onclick = () => {
-            isListening = !isListening;
+            isActive = !isActive;
             btnVoz.classList.toggle('active');
-            isListening ? recognition.start() : recognition.stop();
+            if (isActive) {
+                recognition.start();
+                display.innerText = "Escuchando...";
+                gestionarTiempoPresencia();
+            } else {
+                recognition.stop();
+            }
         };
 
         btnArco.onclick = () => {
-            texto.classList.toggle('arcoiris');
+            display.classList.toggle('efecto-arcoiris');
             btnArco.classList.toggle('active');
         };
 
-        window.onkeydown = (e) => {
-            if(e.key === ']') document.getElementById('controles').style.display = 'none';
-        };
+        // Ocultar controles con la tecla ]
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ']') {
+                document.getElementById('controles').style.visibility = 'hidden';
+            }
+        });
+
+        // Inicio
+        getAudioSources();
     </script>
 </body>
 </html>
