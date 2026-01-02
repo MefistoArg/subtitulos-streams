@@ -101,7 +101,7 @@
                     <option value="5000">5 Seg</option>
                     <option value="10000">10 Seg</option>
                     <option value="20000" selected>20 Seg</option>
-                    <option value="9999999">Fijo</option>
+                    <option value="99999999">Fijo</option>
                 </select>
                 <button onclick="cambiarFondo('#00ff00')" class="py-1 bg-green-500 text-black text-[8px] font-bold rounded uppercase">Verde Chroma</button>
                 <input type="color" id="colorPicker" value="#ffffff" class="h-4 w-full bg-transparent cursor-pointer">
@@ -126,7 +126,7 @@
         const escena = document.getElementById('escena');
         const btnVoice = document.getElementById('btnVoice');
         
-        let recognition; let isListening = false; let hideTimeout; let historial = [];
+        let recognition; let isListening = false; let hideTimeout = null; let historial = [];
 
         function cargarConfig() {
             const data = JSON.parse(localStorage.getItem('subConfig')) || {};
@@ -165,24 +165,18 @@
         function filtrarTexto(texto) {
             let res = texto;
             const lineas = customFilters.value.split(',');
-            
             let reglas = lineas.map(l => {
                 const p = l.split(':');
                 if (p.length === 2) return { f: p[0].trim(), r: p[1].trim() };
                 return null;
             }).filter(x => x && x.f !== "");
-
             reglas.sort((a, b) => b.f.length - a.f.length);
-
             reglas.forEach(regla => {
                 const palabraEscapada = regla.f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const regex = new RegExp(`(^|[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ])${palabraEscapada}(?=[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]|$)`, 'gi');
                 res = res.replace(regex, (match) => {
-                    if (match.toLowerCase().startsWith(regla.f.toLowerCase())) {
-                        return regla.r;
-                    } else {
-                        return match.charAt(0) + regla.r;
-                    }
+                    if (match.toLowerCase().startsWith(regla.f.toLowerCase())) return regla.r;
+                    else return match.charAt(0) + regla.r;
                 });
             });
             return res;
@@ -215,7 +209,6 @@
             preview.style.fontSize = sizeSlider.value + 'px';
             preview.style.webkitTextStroke = strokeSlider.value + "px black";
             preview.style.webkitLineClamp = lineSelect.value;
-            
             let filtros = [];
             if (whiteBorderSlider.value > 0) {
                 const w = whiteBorderSlider.value + "px";
@@ -231,9 +224,11 @@
             if (!texto) return;
             const textoLimpio = filtrarTexto(texto);
             
-            // --- CORRECCIÓN CRÍTICA ---
-            clearTimeout(hideTimeout); // Limpiamos cualquier tiempo anterior
+            // 1. Limpiar el cronómetro anterior inmediatamente
+            if(hideTimeout) clearTimeout(hideTimeout);
             
+            // 2. Mostrar el contenedor
+            containerBg.style.opacity = "1";
             containerBg.classList.remove('anim-pop', 'opacity-0');
             void containerBg.offsetWidth; 
             containerBg.classList.add('anim-pop');
@@ -250,11 +245,13 @@
                 renderHistorial();
             }
             
+            // 3. Obtener duración y ocultar
             const dur = parseInt(document.getElementById('timeSelect').value);
-            // Si el tiempo no es "Fijo", iniciamos la cuenta para ocultar
             if (dur < 9000000) {
                 hideTimeout = setTimeout(() => {
                     containerBg.classList.add('opacity-0');
+                    // Refuerzo manual para asegurar que desaparezca
+                    setTimeout(() => { if(containerBg.classList.contains('opacity-0')) containerBg.style.opacity = "0"; }, 300);
                 }, dur);
             }
         }
@@ -272,22 +269,14 @@
         document.getElementById('btnNeon').onclick = () => { preview.classList.toggle('text-neon'); preview.classList.remove('text-arcoiris', 'text-navidad'); actualizarVisuales(); };
         document.getElementById('btnArcoiris').onclick = () => { preview.classList.toggle('text-arcoiris'); preview.classList.remove('text-neon', 'text-navidad'); actualizarVisuales(); };
         document.getElementById('btnNavidad').onclick = () => { preview.classList.toggle('text-navidad'); preview.classList.remove('text-neon', 'text-arcoiris'); actualizarVisuales(); };
-        
         ['sizeSlider', 'strokeSlider', 'whiteBorderSlider', 'shadowSlider', 'lineSelect', 'fontSelect', 'checkBg', 'customFilters'].forEach(id => {
             document.getElementById(id).oninput = actualizarVisuales;
         });
-
         document.getElementById('manualText').onkeydown = (e) => { if(e.key === 'Enter') { lanzarSubtitulo(e.target.value); e.target.value = ""; } };
         colorPicker.oninput = (e) => { preview.style.color = e.target.value; preview.style.webkitTextFillColor = e.target.value; actualizarVisuales(); };
-        
         let currentPosClass = 'items-center justify-center';
-        function mover(cl) { 
-            currentPosClass = cl;
-            document.getElementById('posicionador').className = `w-full h-full flex p-8 text-center ${cl}`; 
-            guardarConfig();
-        }
+        function mover(cl) { currentPosClass = cl; document.getElementById('posicionador').className = `w-full h-full flex p-8 text-center ${cl}`; guardarConfig(); }
         function cambiarFondo(c) { document.getElementById('escena').style.backgroundColor = c; }
-
         async function init() {
             cargarConfig();
             try {
@@ -302,7 +291,7 @@
         }
         window.onload = init;
         window.onkeydown = (e) => { 
-            if(e.key === 'Escape') containerBg.classList.add('opacity-0');
+            if(e.key === 'Escape') { if(hideTimeout) clearTimeout(hideTimeout); containerBg.classList.add('opacity-0'); containerBg.style.opacity = "0"; }
             if(e.key === ']') document.getElementById('panelControl').classList.toggle('panel-hidden');
         };
         document.getElementById('togglePanel').onclick = () => document.getElementById('panelControl').classList.toggle('panel-hidden');
