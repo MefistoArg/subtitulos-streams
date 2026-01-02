@@ -23,6 +23,11 @@
         .listening { animation: pulse-red 1s infinite; background: #991b1b !important; }
         @keyframes pulse-red { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .panel-hidden { display: none !important; }
+
+        /* --- TRANSICIÓN PARA OCULTAR SUBTÍTULOS --- */
+        #container-bg {
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen flex flex-col items-center p-4 overflow-hidden">
@@ -226,11 +231,14 @@
             
             clearTimeout(hideTimeout);
             
-            // CORRECCIÓN DEFINITIVA: Limpiar clases y forzar opacidad
-            containerBg.classList.remove('anim-pop', 'opacity-0');
-            containerBg.style.opacity = "1"; 
-            void containerBg.offsetWidth; 
+            // 🔁 Reset completo antes de mostrar
+            containerBg.classList.remove('anim-pop');
+            containerBg.style.opacity = "0";
+            void containerBg.offsetWidth; // Forzar reflow
+
+            // Mostrar con animación
             containerBg.classList.add('anim-pop');
+            containerBg.style.opacity = "1";
             
             preview.innerText = textoLimpio;
             preview.style.fontFamily = fontSelect.value;
@@ -247,10 +255,12 @@
             const dur = parseInt(document.getElementById('timeSelect').value);
             if (dur < 9000000) {
                 hideTimeout = setTimeout(() => {
-                    // Quitamos la clase de animación para que no bloquee la opacidad
                     containerBg.classList.remove('anim-pop');
-                    containerBg.classList.add('opacity-0');
                     containerBg.style.opacity = "0";
+                    // Opcional: Limpiar el texto tras la transición
+                    setTimeout(() => {
+                        preview.innerText = "";
+                    }, 300);
                 }, dur);
             }
         }
@@ -290,7 +300,7 @@
         }
         window.onload = init;
         window.onkeydown = (e) => { 
-            if(e.key === 'Escape') { if(hideTimeout) clearTimeout(hideTimeout); containerBg.style.opacity = "0"; containerBg.classList.add('opacity-0'); }
+            if(e.key === 'Escape') { if(hideTimeout) clearTimeout(hideTimeout); containerBg.style.opacity = "0"; }
             if(e.key === ']') document.getElementById('panelControl').classList.toggle('panel-hidden');
         };
         document.getElementById('togglePanel').onclick = () => document.getElementById('panelControl').classList.toggle('panel-hidden');
