@@ -231,7 +231,8 @@
             if (!texto) return;
             const textoLimpio = filtrarTexto(texto);
             
-            clearTimeout(hideTimeout);
+            // --- CORRECCIÓN CRÍTICA ---
+            clearTimeout(hideTimeout); // Limpiamos cualquier tiempo anterior
             
             containerBg.classList.remove('anim-pop', 'opacity-0');
             void containerBg.offsetWidth; 
@@ -249,8 +250,8 @@
                 renderHistorial();
             }
             
-            // CORRECCIÓN AQUÍ: Aseguramos que el tiempo se tome del selector
             const dur = parseInt(document.getElementById('timeSelect').value);
+            // Si el tiempo no es "Fijo", iniciamos la cuenta para ocultar
             if (dur < 9000000) {
                 hideTimeout = setTimeout(() => {
                     containerBg.classList.add('opacity-0');
