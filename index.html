@@ -126,7 +126,7 @@
         const escena = document.getElementById('escena');
         const btnVoice = document.getElementById('btnVoice');
         
-        let recognition; let isListening = false; let hideTimeout = null; let historial = [];
+        let recognition; let isListening = false; let hideTimeout; let historial = [];
 
         function cargarConfig() {
             const data = JSON.parse(localStorage.getItem('subConfig')) || {};
@@ -224,12 +224,11 @@
             if (!texto) return;
             const textoLimpio = filtrarTexto(texto);
             
-            // 1. Limpiar el cronómetro anterior inmediatamente
-            if(hideTimeout) clearTimeout(hideTimeout);
+            clearTimeout(hideTimeout);
             
-            // 2. Mostrar el contenedor
-            containerBg.style.opacity = "1";
+            // CORRECCIÓN DEFINITIVA: Limpiar clases y forzar opacidad
             containerBg.classList.remove('anim-pop', 'opacity-0');
+            containerBg.style.opacity = "1"; 
             void containerBg.offsetWidth; 
             containerBg.classList.add('anim-pop');
             
@@ -245,13 +244,13 @@
                 renderHistorial();
             }
             
-            // 3. Obtener duración y ocultar
             const dur = parseInt(document.getElementById('timeSelect').value);
             if (dur < 9000000) {
                 hideTimeout = setTimeout(() => {
+                    // Quitamos la clase de animación para que no bloquee la opacidad
+                    containerBg.classList.remove('anim-pop');
                     containerBg.classList.add('opacity-0');
-                    // Refuerzo manual para asegurar que desaparezca
-                    setTimeout(() => { if(containerBg.classList.contains('opacity-0')) containerBg.style.opacity = "0"; }, 300);
+                    containerBg.style.opacity = "0";
                 }, dur);
             }
         }
@@ -291,7 +290,7 @@
         }
         window.onload = init;
         window.onkeydown = (e) => { 
-            if(e.key === 'Escape') { if(hideTimeout) clearTimeout(hideTimeout); containerBg.classList.add('opacity-0'); containerBg.style.opacity = "0"; }
+            if(e.key === 'Escape') { if(hideTimeout) clearTimeout(hideTimeout); containerBg.style.opacity = "0"; containerBg.classList.add('opacity-0'); }
             if(e.key === ']') document.getElementById('panelControl').classList.toggle('panel-hidden');
         };
         document.getElementById('togglePanel').onclick = () => document.getElementById('panelControl').classList.toggle('panel-hidden');
